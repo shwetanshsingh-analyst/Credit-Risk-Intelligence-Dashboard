@@ -1,0 +1,1524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Credit Risk Intelligence Platform | Capstone Project</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg-app:       #060C1A;
+  --bg-sidebar:   #080D1C;
+  --bg-card:      #0D1626;
+  --bg-hover:     #111D32;
+  --bg-input:     #09122A;
+  --border:       #1A2D4A;
+  --border-l:     #253E60;
+  --text-1:       #E2EDFF;
+  --text-2:       #6E95C0;
+  --text-3:       #3A5878;
+  --accent:       #1A6FFF;
+  --accent-h:     #2F80FF;
+  --accent-glow:  rgba(26,111,255,0.12);
+  --success:      #10B981;
+  --warning:      #F59E0B;
+  --danger:       #EF4444;
+  --success-bg:   rgba(16,185,129,0.1);
+  --warning-bg:   rgba(245,158,11,0.1);
+  --danger-bg:    rgba(239,68,68,0.1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden}
+body{
+  font-family:'IBM Plex Sans',sans-serif;
+  background:var(--bg-app);
+  color:var(--text-1);
+  display:flex;
+}
+
+/* ── SIDEBAR ─────────────────────────────── */
+.sidebar{
+  width:232px;min-width:232px;
+  background:var(--bg-sidebar);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  height:100vh;
+}
+.s-brand{
+  padding:22px 20px 18px;
+  border-bottom:1px solid var(--border);
+}
+.s-brand-icon{
+  width:34px;height:34px;
+  background:var(--accent-glow);
+  border:1px solid var(--accent);
+  border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:10px;
+}
+.s-brand-icon svg{width:18px;height:18px;stroke:var(--accent);fill:none;stroke-width:1.8;}
+.brand-name{
+  font-size:0.92rem;font-weight:700;
+  color:var(--text-1);letter-spacing:0.01em;
+  line-height:1.3;
+}
+.brand-sub{
+  font-size:0.65rem;color:var(--text-3);
+  text-transform:uppercase;letter-spacing:0.1em;margin-top:2px;
+}
+.nav-section{padding:14px 10px;flex:1;overflow-y:auto;}
+.nav-label{
+  font-size:0.62rem;text-transform:uppercase;
+  letter-spacing:0.12em;color:var(--text-3);
+  padding:8px 10px 4px;
+}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 12px;border-radius:7px;
+  cursor:pointer;color:var(--text-2);
+  font-size:0.845rem;font-weight:400;
+  transition:all 0.15s;margin-bottom:2px;
+  border-left:2px solid transparent;
+}
+.nav-item:hover{background:var(--bg-card);color:var(--text-1);}
+.nav-item.active{
+  background:var(--accent-glow);
+  color:var(--accent);font-weight:600;
+  border-left-color:var(--accent);
+}
+.nav-item svg{width:15px;height:15px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:1.8;}
+.s-footer{
+  padding:14px 16px;
+  border-top:1px solid var(--border);
+  font-size:0.75rem;
+}
+.s-footer-title{
+  font-size:0.62rem;text-transform:uppercase;
+  letter-spacing:0.1em;color:var(--text-3);
+  margin-bottom:8px;
+}
+.model-row{
+  display:flex;align-items:center;gap:8px;
+  padding:4px 0;color:var(--text-2);
+  font-size:0.78rem;
+}
+.dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--success);flex-shrink:0;
+}
+.dot-orange{background:var(--warning);}
+.dot-blue{background:var(--accent);}
+
+/* ── MAIN ─────────────────────────────────── */
+.main{flex:1;overflow-y:auto;background:var(--bg-app);}
+.page{display:none;padding:30px 32px;min-height:100%;}
+.page.active{display:block;}
+
+/* Page Header */
+.ph{margin-bottom:26px;}
+.ph-title{
+  font-size:1.5rem;font-weight:700;
+  color:var(--text-1);letter-spacing:-0.02em;
+}
+.ph-sub{font-size:0.845rem;color:var(--text-2);margin-top:4px;}
+.divider{height:1px;background:var(--border);margin:18px 0;}
+
+/* ── CARD ─────────────────────────────────── */
+.card{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:10px;padding:20px;
+}
+.card-title{
+  font-size:0.72rem;font-weight:600;
+  color:var(--text-2);
+  text-transform:uppercase;letter-spacing:0.1em;
+  margin-bottom:16px;
+}
+
+/* ── KPI GRID ─────────────────────────────── */
+.kpi-grid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:14px;margin-bottom:22px;
+}
+.kpi-card{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:18px 14px;text-align:center;
+  position:relative;overflow:hidden;
+}
+.kpi-card::after{
+  content:'';position:absolute;
+  bottom:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--accent),transparent);
+}
+.kpi-val{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:1.75rem;font-weight:600;
+  color:#FFFFFF;letter-spacing:-0.03em;
+  line-height:1.2;
+}
+.kpi-lbl{
+  font-size:0.67rem;color:var(--text-3);
+  margin-top:5px;text-transform:uppercase;
+  letter-spacing:0.1em;
+}
+
+/* ── GRID UTILS ───────────────────────────── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.mt16{margin-top:16px;}
+.mt20{margin-top:20px;}
+
+/* ── CHART WRAPPER ────────────────────────── */
+.ch{position:relative;height:268px;}
+
+/* ── FORM ELEMENTS ────────────────────────── */
+.fg{margin-bottom:14px;}
+.flbl{
+  display:block;font-size:0.72rem;font-weight:500;
+  color:var(--text-2);margin-bottom:5px;
+  text-transform:uppercase;letter-spacing:0.08em;
+}
+input[type=text],input[type=number],select,textarea{
+  width:100%;background:var(--bg-input);
+  border:1px solid var(--border);border-radius:6px;
+  padding:8px 12px;color:var(--text-1);
+  font-family:'IBM Plex Sans',sans-serif;
+  font-size:0.845rem;transition:border-color 0.15s;
+  -webkit-appearance:none;
+}
+input:focus,select:focus,textarea:focus{
+  outline:none;border-color:var(--accent);
+}
+select option{background:var(--bg-card);}
+textarea{resize:vertical;min-height:80px;}
+
+/* Range slider */
+.sw{display:flex;align-items:center;gap:10px;}
+input[type=range]{
+  flex:1;-webkit-appearance:none;
+  height:4px;border-radius:2px;
+  background:var(--border-l);outline:none;
+  cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  width:14px;height:14px;border-radius:50%;
+  background:var(--accent);cursor:pointer;
+}
+.sv{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:0.845rem;color:var(--text-1);
+  min-width:70px;text-align:right;
+}
+
+/* Button */
+.btn{
+  padding:10px 24px;background:var(--accent);
+  color:#fff;border:none;border-radius:6px;
+  font-family:'IBM Plex Sans',sans-serif;
+  font-size:0.875rem;font-weight:600;
+  cursor:pointer;transition:all 0.15s;
+  width:100%;letter-spacing:0.02em;
+}
+.btn:hover{background:var(--accent-h);}
+
+/* ── PREDICTION BOX ───────────────────────── */
+.pred-box{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:10px;padding:26px;
+  text-align:center;
+}
+.pred-status{font-size:1.4rem;font-weight:700;margin-bottom:10px;}
+.pred-grade{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:3rem;font-weight:700;
+  line-height:1.1;margin:4px 0;
+}
+.pred-prob{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:1.05rem;color:var(--text-2);
+  margin-top:8px;
+}
+.risk-badge{
+  display:inline-block;padding:3px 14px;
+  border-radius:20px;font-size:0.75rem;
+  font-weight:700;text-transform:uppercase;
+  letter-spacing:0.08em;margin:6px 0;
+}
+.rb-HIGH{background:var(--danger-bg);color:var(--danger);}
+.rb-MEDIUM{background:var(--warning-bg);color:var(--warning);}
+.rb-LOW{background:var(--success-bg);color:var(--success);}
+.conf-row{
+  font-size:0.78rem;color:var(--text-3);margin-top:6px;
+}
+
+/* ── TABS ─────────────────────────────────── */
+.tab-list{
+  display:flex;border-bottom:1px solid var(--border);
+  margin-bottom:18px;gap:0;
+}
+.tab-btn{
+  padding:9px 20px;background:none;border:none;
+  border-bottom:2px solid transparent;
+  color:var(--text-2);
+  font-family:'IBM Plex Sans',sans-serif;
+  font-size:0.845rem;font-weight:500;
+  cursor:pointer;transition:all 0.15s;
+}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
+.tab-pane{display:none;}
+.tab-pane.active{display:block;}
+
+/* ── TABLE ────────────────────────────────── */
+.tbl{width:100%;border-collapse:collapse;}
+.tbl th{
+  background:var(--bg-input);padding:9px 14px;
+  font-size:0.68rem;text-transform:uppercase;
+  letter-spacing:0.1em;color:var(--text-3);
+  text-align:left;border-bottom:1px solid var(--border);
+}
+.tbl td{
+  padding:10px 14px;font-size:0.845rem;
+  border-bottom:1px solid var(--border);
+  color:var(--text-2);
+}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl td:first-child{color:var(--text-1);font-weight:500;}
+.mono{font-family:'IBM Plex Mono',monospace;color:var(--text-1)!important;}
+
+/* ── METRIC MINI CARDS ────────────────────── */
+.mcard{
+  background:var(--bg-input);
+  border:1px solid var(--border);
+  border-radius:8px;padding:14px;
+  text-align:center;
+}
+.mcard-val{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:1.25rem;font-weight:600;
+  color:var(--text-1);
+}
+.mcard-lbl{
+  font-size:0.67rem;color:var(--text-3);
+  margin-top:4px;text-transform:uppercase;
+  letter-spacing:0.08em;
+}
+
+/* ── NLP ──────────────────────────────────── */
+.nlp-result{
+  background:var(--bg-input);
+  border:1px solid var(--border);
+  border-radius:8px;padding:18px;
+  margin-top:14px;
+}
+.kw-tag{
+  display:inline-block;padding:2px 10px;
+  border-radius:12px;font-size:0.78rem;margin:3px;
+}
+.kw-neg{background:var(--danger-bg);color:var(--danger);}
+.kw-pos{background:var(--success-bg);color:var(--success);}
+
+/* ── PROGRESS BAR ─────────────────────────── */
+.pbar-row{
+  display:flex;align-items:center;
+  gap:10px;margin:7px 0;
+}
+.pbar-label{width:160px;font-size:0.8rem;color:var(--text-2);}
+.pbar-track{
+  flex:1;height:6px;background:var(--border);
+  border-radius:3px;overflow:hidden;
+}
+.pbar-fill{height:100%;border-radius:3px;}
+.pbar-val{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:0.78rem;color:var(--text-1);
+  width:48px;text-align:right;
+}
+
+/* Grade colors */
+.g-aaa{color:#22C55E}.g-aa{color:#4ADE80}
+.g-a{color:#38BDF8}.g-bbb{color:#FCD34D}
+.g-bb{color:#FBBF24}.g-b{color:#F97316}
+.g-ccc{color:#EF4444}
+
+/* Trend badges */
+.t-up{color:var(--danger);font-family:'IBM Plex Mono',monospace;font-size:0.78rem;}
+.t-dn{color:var(--success);font-family:'IBM Plex Mono',monospace;font-size:0.78rem;}
+
+/* Section headers */
+.sh{
+  font-size:0.78rem;font-weight:600;
+  color:var(--text-2);text-transform:uppercase;
+  letter-spacing:0.1em;margin-bottom:14px;
+  padding-bottom:8px;border-bottom:1px solid var(--border);
+}
+
+/* Info row */
+.info-row{display:flex;gap:8px;align-items:flex-start;font-size:0.8rem;color:var(--text-2);margin-bottom:6px;}
+.info-key{color:var(--text-3);min-width:110px;text-transform:uppercase;letter-spacing:0.06em;font-size:0.72rem;}
+
+/* Gauge canvas wrapper */
+#gaugeWrap{text-align:center;margin:10px 0;}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border-l);border-radius:3px;}
+
+/* Responsive adjustments */
+@media(max-width:1200px){.kpi-grid{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:900px){.g2,.g3{grid-template-columns:1fr;}.kpi-grid{grid-template-columns:repeat(2,1fr);}}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ SIDEBAR ═══════════════════ -->
+<nav class="sidebar">
+  <div class="s-brand">
+    <div class="s-brand-icon">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </div>
+    <div class="brand-name">Credit Risk<br>Intelligence</div>
+    <div class="brand-sub">Capstone Project</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Navigation</div>
+    <div class="nav-item active" data-page="pg-dashboard" onclick="showPage('pg-dashboard',this)">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </div>
+    <div class="nav-item" data-page="pg-predictor" onclick="showPage('pg-predictor',this)">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      Loan Predictor
+    </div>
+    <div class="nav-item" data-page="pg-eda" onclick="showPage('pg-eda',this)">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      EDA &amp; Analytics
+    </div>
+    <div class="nav-item" data-page="pg-timeseries" onclick="showPage('pg-timeseries',this)">
+      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Time Series
+    </div>
+    <div class="nav-item" data-page="pg-models" onclick="showPage('pg-models',this)">
+      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      Model Performance
+    </div>
+    <div class="nav-item" data-page="pg-nlp" onclick="showPage('pg-nlp',this)">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      NLP Analysis
+    </div>
+  </div>
+
+  <div class="s-footer">
+    <div class="s-footer-title">Active Models</div>
+    <div class="model-row"><div class="dot"></div>XGBoost — AUC 0.913</div>
+    <div class="model-row"><div class="dot dot-blue"></div>Random Forest — AUC 0.874</div>
+    <div class="model-row"><div class="dot"></div>LSTM + Attention — AUC 0.891</div>
+    <div class="model-row"><div class="dot dot-orange"></div>NLP Classifier — AUC 0.831</div>
+    <div class="model-row"><div class="dot"></div>Prophet Forecaster</div>
+  </div>
+</nav>
+
+<!-- ═══════════════════ MAIN ═══════════════════ -->
+<div class="main">
+
+<!-- ─── PAGE: DASHBOARD ─────────────────────── -->
+<div id="pg-dashboard" class="page active">
+  <div class="ph">
+    <div class="ph-title">Credit Risk Intelligence Dashboard</div>
+    <div class="ph-sub">Real-time loan portfolio analytics — AI-powered risk assessment</div>
+  </div>
+  <div class="divider"></div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card"><div class="kpi-val">500</div><div class="kpi-lbl">Total Loans</div></div>
+    <div class="kpi-card"><div class="kpi-val">19.8%</div><div class="kpi-lbl">Default Rate</div></div>
+    <div class="kpi-card"><div class="kpi-val">8.2L</div><div class="kpi-lbl">Avg Income (INR)</div></div>
+    <div class="kpi-card"><div class="kpi-val">648</div><div class="kpi-lbl">Avg Credit Score</div></div>
+    <div class="kpi-card"><div class="kpi-val">3.7L</div><div class="kpi-lbl">Avg Loan Size (INR)</div></div>
+  </div>
+
+  <div class="g2 mt16">
+    <div class="card">
+      <div class="card-title">Risk Grade Distribution</div>
+      <div class="ch"><canvas id="chartGrade"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Loan Purpose — Default Rate</div>
+      <div class="ch"><canvas id="chartPurpose"></canvas></div>
+    </div>
+  </div>
+
+  <div class="g2 mt16">
+    <div class="card">
+      <div class="card-title">Credit Score Distribution by Default Status</div>
+      <div class="ch"><canvas id="chartScore"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Employment Type — Default Rate</div>
+      <div class="ch"><canvas id="chartEmp"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── PAGE: PREDICTOR ─────────────────────── -->
+<div id="pg-predictor" class="page">
+  <div class="ph">
+    <div class="ph-title">Loan Default Predictor</div>
+    <div class="ph-sub">Enter borrower details for instant AI-powered risk assessment</div>
+  </div>
+  <div class="divider"></div>
+
+  <div class="g3">
+    <!-- col 1 -->
+    <div class="card">
+      <div class="sh">Borrower Profile</div>
+      <div class="fg">
+        <label class="flbl">Age</label>
+        <div class="sw">
+          <input type="range" id="p-age" min="21" max="65" value="35" oninput="sv('p-age','sv-age')">
+          <span class="sv" id="sv-age">35</span>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="flbl">Annual Income (INR)</label>
+        <input type="number" id="p-income" value="500000" min="100000" max="5000000" step="10000">
+      </div>
+      <div class="fg">
+        <label class="flbl">Employment Type</label>
+        <select id="p-emp">
+          <option>Salaried</option><option>Self-Employed</option>
+          <option>Government</option><option>Business Owner</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label class="flbl">Years Employed</label>
+        <div class="sw">
+          <input type="range" id="p-empyrs" min="0" max="30" value="5" step="0.5" oninput="sv('p-empyrs','sv-empyrs')">
+          <span class="sv" id="sv-empyrs">5</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- col 2 -->
+    <div class="card">
+      <div class="sh">Financial History</div>
+      <div class="fg">
+        <label class="flbl">Credit Score</label>
+        <div class="sw">
+          <input type="range" id="p-cs" min="300" max="900" value="700" oninput="sv('p-cs','sv-cs')">
+          <span class="sv" id="sv-cs">700</span>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="flbl">DTI Ratio</label>
+        <div class="sw">
+          <input type="range" id="p-dti" min="0" max="1" value="0.35" step="0.01" oninput="sv('p-dti','sv-dti')">
+          <span class="sv" id="sv-dti">0.35</span>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="flbl">Previous Defaults</label>
+        <select id="p-prev">
+          <option value="0">0</option><option value="1">1</option>
+          <option value="2">2</option><option value="3">3</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label class="flbl">Missed Payments (6 months)</label>
+        <select id="p-missed">
+          <option value="0">0</option><option value="1">1</option>
+          <option value="2">2</option><option value="3">3</option>
+          <option value="4">4</option><option value="5">5</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- col 3 -->
+    <div class="card">
+      <div class="sh">Loan Details</div>
+      <div class="fg">
+        <label class="flbl">Loan Amount (INR)</label>
+        <input type="number" id="p-loan" value="300000" min="10000" max="5000000" step="10000">
+      </div>
+      <div class="fg">
+        <label class="flbl">Loan Term (months)</label>
+        <select id="p-term">
+          <option>12</option><option>24</option><option selected>36</option>
+          <option>48</option><option>60</option><option>84</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label class="flbl">Interest Rate (%)</label>
+        <div class="sw">
+          <input type="range" id="p-rate" min="7" max="25" value="12" step="0.5" oninput="sv('p-rate','sv-rate')">
+          <span class="sv" id="sv-rate">12.0%</span>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="flbl">Loan Purpose</label>
+        <select id="p-purpose">
+          <option>Home Purchase</option><option>Education</option>
+          <option>Business</option><option>Medical</option><option>Vehicle</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mt20">
+    <div class="sh">Application Statement</div>
+    <textarea id="p-text" rows="3">I am applying for this loan to fund my business expansion. I have a stable income and excellent repayment history. I am fully committed to timely repayments.</textarea>
+    <div style="margin-top:14px;">
+      <button class="btn" onclick="runPredictor()">Run Risk Analysis</button>
+    </div>
+  </div>
+
+  <div id="pred-results" style="display:none;margin-top:20px;">
+    <div class="g3">
+      <div>
+        <div class="card" style="text-align:center;">
+          <div class="card-title">Default Probability</div>
+          <div id="gaugeWrap">
+            <canvas id="gaugeCanvas" width="220" height="130"></canvas>
+          </div>
+          <div id="gauge-val" style="font-family:'IBM Plex Mono',monospace;font-size:2rem;font-weight:700;color:#fff;"></div>
+          <div style="font-size:0.78rem;color:var(--text-3);margin-top:4px;">Probability of Default</div>
+        </div>
+      </div>
+
+      <div class="pred-box">
+        <div id="pred-status" class="pred-status"></div>
+        <div id="pred-grade" class="pred-grade"></div>
+        <div id="pred-badge"></div>
+        <div id="pred-prob" class="pred-prob"></div>
+        <div id="pred-conf" class="conf-row"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Risk Factor Analysis</div>
+        <div class="ch" style="height:220px;"><canvas id="chartFactors"></canvas></div>
+      </div>
+    </div>
+
+    <div class="card mt16">
+      <div class="sh">NLP — Application Text Signals</div>
+      <div class="g4">
+        <div class="mcard"><div class="mcard-val" id="nlp-pol">—</div><div class="mcard-lbl">Sentiment Polarity</div></div>
+        <div class="mcard"><div class="mcard-val" id="nlp-subj">—</div><div class="mcard-lbl">Subjectivity</div></div>
+        <div class="mcard"><div class="mcard-val" id="nlp-neg">—</div><div class="mcard-lbl">Risk Keywords</div></div>
+        <div class="mcard"><div class="mcard-val" id="nlp-sig">—</div><div class="mcard-lbl">NLP Risk Signal</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── PAGE: EDA ────────────────────────────── -->
+<div id="pg-eda" class="page">
+  <div class="ph">
+    <div class="ph-title">Exploratory Data Analysis</div>
+    <div class="ph-sub">Statistical distributions, correlations, and segment-level insights</div>
+  </div>
+  <div class="divider"></div>
+
+  <div class="tab-list">
+    <button class="tab-btn active" onclick="switchTab('eda',0,this)">Distributions</button>
+    <button class="tab-btn" onclick="switchTab('eda',1,this)">Correlations</button>
+    <button class="tab-btn" onclick="switchTab('eda',2,this)">Segment Analysis</button>
+  </div>
+
+  <div id="eda-tab0" class="tab-pane active">
+    <div class="card">
+      <div class="card-title">Feature Distribution by Default Status</div>
+      <div style="margin-bottom:14px;">
+        <select id="eda-feature" onchange="updateEdaDist()" style="max-width:240px;">
+          <option value="credit_score">Credit Score</option>
+          <option value="annual_income">Annual Income</option>
+          <option value="dti_ratio">DTI Ratio</option>
+          <option value="loan_amount">Loan Amount</option>
+          <option value="age">Age</option>
+        </select>
+      </div>
+      <div class="ch" style="height:300px;"><canvas id="chartEdaDist"></canvas></div>
+    </div>
+  </div>
+
+  <div id="eda-tab1" class="tab-pane">
+    <div class="card">
+      <div class="card-title">Feature Correlation Matrix</div>
+      <canvas id="corrCanvas" width="700" height="380" style="width:100%;height:auto;display:block;"></canvas>
+    </div>
+  </div>
+
+  <div id="eda-tab2" class="tab-pane">
+    <div class="card">
+      <div class="card-title">Segment-Level Default Rate</div>
+      <div style="margin-bottom:14px;">
+        <select id="seg-feature" onchange="updateSegChart()" style="max-width:240px;">
+          <option value="employment">Employment Type</option>
+          <option value="purpose">Loan Purpose</option>
+          <option value="grade">Risk Grade</option>
+        </select>
+      </div>
+      <div class="ch" style="height:300px;"><canvas id="chartSeg"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── PAGE: TIME SERIES ───────────────────── -->
+<div id="pg-timeseries" class="page">
+  <div class="ph">
+    <div class="ph-title">Time Series Risk Forecasting</div>
+    <div class="ph-sub">ARIMA + Prophet models — 6-month portfolio default rate forecast</div>
+  </div>
+  <div class="divider"></div>
+
+  <div class="card">
+    <div class="card-title">Monthly Default Rate — Historical + Prophet Forecast</div>
+    <div class="ch" style="height:340px;"><canvas id="chartTS"></canvas></div>
+  </div>
+
+  <div class="g2 mt16">
+    <div class="card">
+      <div class="sh">ARIMA Model Statistics</div>
+      <table class="tbl">
+        <tr><td>Model Order</td><td class="mono">ARIMA(2,1,2)(1,1,1)12</td></tr>
+        <tr><td>AIC Score</td><td class="mono">142.6</td></tr>
+        <tr><td>Mean Absolute Error</td><td class="mono">0.018</td></tr>
+        <tr><td>Root Mean Sq. Error</td><td class="mono">0.024</td></tr>
+        <tr><td>Training Period</td><td class="mono">Jan 2022 – Jun 2024</td></tr>
+        <tr><td>Seasonality</td><td class="mono">12-month cycle</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="sh">Prophet Forecast — Next 6 Months</div>
+      <table class="tbl">
+        <thead><tr><th>Month</th><th>Predicted Rate</th><th>Trend</th></tr></thead>
+        <tbody>
+          <tr><td>Jul 2024</td><td class="mono">20.3%</td><td><span class="t-up">+ Rising</span></td></tr>
+          <tr><td>Aug 2024</td><td class="mono">20.8%</td><td><span class="t-up">+ Rising</span></td></tr>
+          <tr><td>Sep 2024</td><td class="mono">21.2%</td><td><span class="t-up">+ Rising</span></td></tr>
+          <tr><td>Oct 2024</td><td class="mono">21.0%</td><td><span class="t-dn">- Falling</span></td></tr>
+          <tr><td>Nov 2024</td><td class="mono">20.6%</td><td><span class="t-dn">- Falling</span></td></tr>
+          <tr><td>Dec 2024</td><td class="mono">20.9%</td><td><span class="t-up">+ Rising</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ─── PAGE: MODEL PERFORMANCE ─────────────── -->
+<div id="pg-models" class="page">
+  <div class="ph">
+    <div class="ph-title">Model Performance Comparison</div>
+    <div class="ph-sub">Side-by-side evaluation across ROC-AUC, F1, Precision, and Recall</div>
+  </div>
+  <div class="divider"></div>
+
+  <div class="card">
+    <div class="card-title">Performance Metrics — All Models</div>
+    <div class="ch" style="height:320px;"><canvas id="chartModels"></canvas></div>
+  </div>
+
+  <div class="g2 mt16">
+    <div class="card">
+      <div class="sh">Detailed Results</div>
+      <table class="tbl">
+        <thead><tr><th>Model</th><th>Type</th><th>ROC-AUC</th><th>F1</th></tr></thead>
+        <tbody>
+          <tr><td>Stacking Ensemble</td><td>Meta-Learning</td><td class="mono" style="color:#22C55E">0.928</td><td class="mono">0.881</td></tr>
+          <tr><td>XGBoost</td><td>Gradient Boosting</td><td class="mono">0.913</td><td class="mono">0.862</td></tr>
+          <tr><td>LSTM + Attention</td><td>Deep Learning</td><td class="mono">0.891</td><td class="mono">0.843</td></tr>
+          <tr><td>Random Forest</td><td>Ensemble ML</td><td class="mono">0.874</td><td class="mono">0.829</td></tr>
+          <tr><td>NLP Classifier</td><td>NLP / TF-IDF</td><td class="mono">0.831</td><td class="mono">0.788</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="sh">ROC-AUC Comparison</div>
+      <div id="auc-bars"></div>
+    </div>
+  </div>
+
+  <div class="card mt16">
+    <div class="sh">Architecture Overview</div>
+    <div class="g3">
+      <div>
+        <div class="info-row"><span class="info-key">XGBoost</span><span>500 estimators, lr=0.05, scale_pos_weight=3, gamma=0.1</span></div>
+        <div class="info-row"><span class="info-key">Random Forest</span><span>300 trees, max_depth=12, balanced class weights</span></div>
+      </div>
+      <div>
+        <div class="info-row"><span class="info-key">LSTM</span><span>BiLSTM(128) → BiLSTM(64) → Attention → Concat tabular → Dense</span></div>
+        <div class="info-row"><span class="info-key">NLP Pipeline</span><span>TF-IDF (500 features) + TextBlob polarity + keyword extraction</span></div>
+      </div>
+      <div>
+        <div class="info-row"><span class="info-key">Stacking</span><span>Base: [RF + XGB] → Meta: Logistic Regression, 5-fold CV</span></div>
+        <div class="info-row"><span class="info-key">Training Data</span><span>8,000 samples + SMOTE, 5-fold stratified CV</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── PAGE: NLP ────────────────────────────── -->
+<div id="pg-nlp" class="page">
+  <div class="ph">
+    <div class="ph-title">NLP Sentiment Analysis</div>
+    <div class="ph-sub">Extract hidden risk signals from loan application text</div>
+  </div>
+  <div class="divider"></div>
+
+  <div class="card">
+    <div class="sh">Application Text Input</div>
+    <textarea id="nlp-input" rows="4">I need this loan urgently. I've had some financial difficulties recently but hope to recover soon. Please approve despite past issues.</textarea>
+    <div style="margin-top:12px;max-width:240px;">
+      <button class="btn" onclick="runNLP()">Analyze Text</button>
+    </div>
+  </div>
+
+  <div id="nlp-results" style="display:none;margin-top:18px;">
+    <div class="g4 mt16">
+      <div class="mcard"><div class="mcard-val" id="n-pol">—</div><div class="mcard-lbl">Polarity Score</div></div>
+      <div class="mcard"><div class="mcard-val" id="n-subj">—</div><div class="mcard-lbl">Subjectivity</div></div>
+      <div class="mcard"><div class="mcard-val" id="n-pos">—</div><div class="mcard-lbl">Positive Signals</div></div>
+      <div class="mcard"><div class="mcard-val" id="n-neg">—</div><div class="mcard-lbl">Risk Signals</div></div>
+    </div>
+
+    <div class="card mt16">
+      <div class="sh">Analysis Result</div>
+      <div class="nlp-result">
+        <div style="margin-bottom:12px;">
+          <span style="font-size:0.78rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.08em;">Overall Risk Level</span><br>
+          <span id="n-risk-lbl" style="font-size:1.3rem;font-weight:700;"></span>
+        </div>
+        <div style="margin-bottom:10px;">
+          <span class="info-key">Risk Keywords Detected:</span>
+          <span id="n-neg-kw"></span>
+        </div>
+        <div style="margin-bottom:10px;">
+          <span class="info-key">Positive Signals:</span>
+          <span id="n-pos-kw"></span>
+        </div>
+        <div style="font-size:0.78rem;color:var(--text-3);margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">
+          Note: NLP analysis is one signal among many. Final decisions combine all model outputs including credit score, DTI, and historical repayment data.
+        </div>
+      </div>
+    </div>
+
+    <div class="card mt16">
+      <div class="sh">Signal Breakdown</div>
+      <div class="g2">
+        <div>
+          <div style="font-size:0.78rem;color:var(--text-3);margin-bottom:8px;">Positive Keywords Detected</div>
+          <div id="n-pos-list"></div>
+        </div>
+        <div>
+          <div style="font-size:0.78rem;color:var(--text-3);margin-bottom:8px;">Negative Keywords Detected</div>
+          <div id="n-neg-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<!-- ═══════════════════ SCRIPTS ═══════════════════ -->
+<script>
+// ── Global Chart defaults ─────────────────────
+Chart.defaults.color = '#6E95C0';
+Chart.defaults.borderColor = '#1A2D4A';
+Chart.defaults.font.family = "'IBM Plex Mono', monospace";
+Chart.defaults.font.size = 11;
+
+const ACC  = '#1A6FFF';
+const SUCCESS = '#10B981';
+const WARNING = '#F59E0B';
+const DANGER  = '#EF4444';
+const CYAN  = '#06B6D4';
+const PURPLE = '#8B5CF6';
+
+const GRADE_COLORS = ['#22C55E','#4ADE80','#38BDF8','#FCD34D','#FBBF24','#F97316','#EF4444'];
+const MODEL_COLORS = [ACC, SUCCESS, WARNING, CYAN, PURPLE];
+
+// ── Charts registry ───────────────────────────
+const charts = {};
+const initialized = {};
+
+// ── Navigation ────────────────────────────────
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+  if (!initialized[id]) { initPage(id); initialized[id] = true; }
+}
+
+function initPage(id) {
+  if (id === 'pg-dashboard') initDashboard();
+  if (id === 'pg-eda')       initEDA();
+  if (id === 'pg-timeseries') initTimeSeries();
+  if (id === 'pg-models')    initModels();
+}
+
+// init dashboard on load
+window.addEventListener('DOMContentLoaded', () => {
+  initDashboard();
+  initialized['pg-dashboard'] = true;
+  buildAUCBars();
+});
+
+// ── Slider display ────────────────────────────
+function sv(inputId, spanId) {
+  const v = document.getElementById(inputId).value;
+  const el = document.getElementById(spanId);
+  if (inputId === 'p-rate') el.textContent = parseFloat(v).toFixed(1) + '%';
+  else if (inputId === 'p-dti') el.textContent = parseFloat(v).toFixed(2);
+  else el.textContent = v;
+}
+
+// ── Tab switching ─────────────────────────────
+function switchTab(group, idx, btn) {
+  const panes = document.querySelectorAll(`[id^="${group}-tab"]`);
+  const btns  = btn.parentElement.querySelectorAll('.tab-btn');
+  panes.forEach((p,i) => p.classList.toggle('active', i === idx));
+  btns.forEach((b,i) => b.classList.toggle('active', i === idx));
+  if (group === 'eda' && idx === 1) drawCorrMatrix();
+  if (group === 'eda' && idx === 2) updateSegChart();
+}
+
+// ─────────────────────────────────────────────
+// DASHBOARD CHARTS
+// ─────────────────────────────────────────────
+function initDashboard() {
+  // Grade Distribution
+  newChart('chartGrade', 'bar', {
+    labels: ['AAA','AA','A','BBB','BB','B','CCC'],
+    datasets: [{
+      label: 'Loan Count',
+      data: [89, 76, 102, 84, 71, 48, 30],
+      backgroundColor: GRADE_COLORS,
+      borderRadius: 4,
+    }]
+  }, {
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false } },
+      y: { grid: { color: '#1A2D4A' } }
+    }
+  });
+
+  // Purpose Default Rate - horizontal bar
+  newChart('chartPurpose', 'bar', {
+    labels: ['Home Purchase','Vehicle','Education','Medical','Business'],
+    datasets: [{
+      label: 'Default Rate (%)',
+      data: [12.3, 14.2, 16.5, 18.9, 22.1],
+      backgroundColor: [SUCCESS, SUCCESS, WARNING, WARNING, DANGER],
+      borderRadius: 3,
+    }]
+  }, {
+    indexAxis: 'y',
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: '#1A2D4A' }, title: { display: true, text: 'Default Rate (%)' } },
+      y: { grid: { display: false } }
+    }
+  });
+
+  // Credit Score Histogram
+  const bins = ['300-350','350-400','400-450','450-500','500-550','550-600','600-650','650-700','700-750','750-800','800-850','850-900'];
+  newChart('chartScore', 'bar', {
+    labels: bins,
+    datasets: [
+      {
+        label: 'Non-Default',
+        data: [4,6,8,12,18,28,45,72,85,68,42,22],
+        backgroundColor: ACC + 'AA',
+        borderRadius: 2,
+      },
+      {
+        label: 'Default',
+        data: [8,12,18,22,24,18,12,8,4,2,1,0],
+        backgroundColor: DANGER + 'AA',
+        borderRadius: 2,
+      }
+    ]
+  }, {
+    plugins: { legend: { labels: { color: '#E2EDFF', font: { family: 'IBM Plex Sans' } } } },
+    scales: {
+      x: { stacked: false, grid: { display: false }, ticks: { maxRotation: 45 } },
+      y: { grid: { color: '#1A2D4A' } }
+    }
+  });
+
+  // Employment type default rate
+  newChart('chartEmp', 'bar', {
+    labels: ['Government','Salaried','Business Owner','Self-Employed'],
+    datasets: [{
+      label: 'Default Rate (%)',
+      data: [9.2, 15.4, 21.7, 26.3],
+      backgroundColor: [SUCCESS, ACC, WARNING, DANGER],
+      borderRadius: 4,
+    }]
+  }, {
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false } },
+      y: { grid: { color: '#1A2D4A' }, title: { display: true, text: 'Default Rate (%)' } }
+    }
+  });
+}
+
+// ─────────────────────────────────────────────
+// EDA CHARTS
+// ─────────────────────────────────────────────
+const edaData = {
+  credit_score: {
+    labels: ['300-400','400-500','500-600','600-700','700-800','800-900'],
+    nd:  [8, 15, 42, 110, 165, 60],
+    def: [18, 28, 36, 24,  8,   1],
+    xLabel: 'Credit Score Range'
+  },
+  annual_income: {
+    labels: ['<2L','2-4L','4-6L','6-10L','10-20L','>20L'],
+    nd:  [12, 38, 72, 105, 118, 55],
+    def: [24, 38, 28, 18,   8,  2],
+    xLabel: 'Annual Income (INR)'
+  },
+  dti_ratio: {
+    labels: ['0.0-0.1','0.1-0.2','0.2-0.3','0.3-0.4','0.4-0.5','0.5-0.6','>0.6'],
+    nd:  [38, 72, 95, 82, 55, 38, 20],
+    def: [2, 4, 10, 18, 24, 28, 30],
+    xLabel: 'DTI Ratio'
+  },
+  loan_amount: {
+    labels: ['<1L','1-2L','2-4L','4-6L','6-10L','>10L'],
+    nd:  [62, 88, 120, 78, 42, 10],
+    def: [8, 16, 28, 26, 22, 12],
+    xLabel: 'Loan Amount (INR)'
+  },
+  age: {
+    labels: ['21-25','26-30','31-35','36-40','41-45','46-50','50-65'],
+    nd:  [28, 72, 88, 75, 68, 42, 27],
+    def: [12, 24, 22, 18, 14, 8,  4],
+    xLabel: 'Age'
+  }
+};
+
+function initEDA() {
+  updateEdaDist();
+}
+
+function updateEdaDist() {
+  const feat = document.getElementById('eda-feature').value;
+  const d = edaData[feat];
+  if (charts['chartEdaDist']) charts['chartEdaDist'].destroy();
+  charts['chartEdaDist'] = newChart('chartEdaDist', 'bar', {
+    labels: d.labels,
+    datasets: [
+      { label: 'Non-Default', data: d.nd,  backgroundColor: ACC + 'CC', borderRadius: 3 },
+      { label: 'Default',     data: d.def, backgroundColor: DANGER + 'CC', borderRadius: 3 }
+    ]
+  }, {
+    plugins: { legend: { labels: { color: '#E2EDFF', font: { family: 'IBM Plex Sans' } } } },
+    scales: {
+      x: { grid: { display: false }, title: { display: true, text: d.xLabel } },
+      y: { grid: { color: '#1A2D4A' }, title: { display: true, text: 'Count' } }
+    }
+  });
+}
+
+function drawCorrMatrix() {
+  const canvas = document.getElementById('corrCanvas');
+  const ctx = canvas.getContext('2d');
+  const labels = ['Credit Score','DTI Ratio','Income','Loan Amt','Int. Rate','Prev. Def.','Default'];
+  const corr = [
+    [ 1.00,-0.52, 0.38, 0.12,-0.44,-0.60,-0.58],
+    [-0.52, 1.00,-0.28, 0.22, 0.48, 0.38, 0.55],
+    [ 0.38,-0.28, 1.00, 0.45,-0.22,-0.18,-0.32],
+    [ 0.12, 0.22, 0.45, 1.00, 0.14, 0.08,-0.12],
+    [-0.44, 0.48,-0.22, 0.14, 1.00, 0.32, 0.42],
+    [-0.60, 0.38,-0.18, 0.08, 0.32, 1.00, 0.64],
+    [-0.58, 0.55,-0.32,-0.12, 0.42, 0.64, 1.00],
+  ];
+  const n = labels.length;
+  const W = canvas.width, H = canvas.height;
+  const margin = 90;
+  const cell = Math.floor((Math.min(W,H) - margin) / n);
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#0D1626';
+  ctx.fillRect(0, 0, W, H);
+
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      const v = corr[i][j];
+      const x = margin + j * cell;
+      const y = margin + i * cell;
+      const r = v > 0 ? Math.round(239 - (1-v)*200) : Math.round(39);
+      const g = v > 0 ? Math.round(68 - (1-v)*40) : Math.round(68 + (1+v)*140);
+      const b = v > 0 ? Math.round(68) : Math.round(239 - (1+v)*100);
+      ctx.fillStyle = `rgba(${r},${g},${b},${Math.abs(v)*0.9+0.1})`;
+      ctx.fillRect(x+1, y+1, cell-2, cell-2);
+      ctx.fillStyle = Math.abs(v) > 0.4 ? '#fff' : '#6E95C0';
+      ctx.font = '11px IBM Plex Mono, monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(v.toFixed(2), x + cell/2, y + cell/2);
+    }
+  }
+  // Labels
+  ctx.fillStyle = '#6E95C0';
+  ctx.font = '10px IBM Plex Sans, sans-serif';
+  ctx.textAlign = 'right';
+  for (let i = 0; i < n; i++) {
+    ctx.fillText(labels[i], margin - 6, margin + i*cell + cell/2);
+  }
+  ctx.textAlign = 'center';
+  ctx.save();
+  for (let j = 0; j < n; j++) {
+    ctx.save();
+    ctx.translate(margin + j*cell + cell/2, margin - 6);
+    ctx.rotate(-Math.PI/4);
+    ctx.fillText(labels[j], 0, 0);
+    ctx.restore();
+  }
+}
+
+const segData = {
+  employment: {
+    labels: ['Government','Salaried','Business Owner','Self-Employed'],
+    data:   [9.2, 15.4, 21.7, 26.3]
+  },
+  purpose: {
+    labels: ['Home Purchase','Vehicle','Education','Medical','Business'],
+    data:   [12.3, 14.2, 16.5, 18.9, 22.1]
+  },
+  grade: {
+    labels: ['AAA','AA','A','BBB','BB','B','CCC'],
+    data:   [2.1, 5.8, 12.4, 22.6, 38.1, 55.8, 78.3]
+  }
+};
+
+function updateSegChart() {
+  const feat = document.getElementById('seg-feature').value;
+  const d = segData[feat];
+  if (charts['chartSeg']) charts['chartSeg'].destroy();
+  const maxV = Math.max(...d.data);
+  charts['chartSeg'] = newChart('chartSeg', 'bar', {
+    labels: d.labels,
+    datasets: [{
+      label: 'Default Rate (%)',
+      data: d.data,
+      backgroundColor: d.data.map(v => {
+        const t = v / maxV;
+        const r = Math.round(16 + t*223);
+        const g = Math.round(185 - t*117);
+        const b = Math.round(129 - t*61);
+        return `rgba(${r},${g},${b},0.85)`;
+      }),
+      borderRadius: 4,
+    }]
+  }, {
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false } },
+      y: { grid: { color: '#1A2D4A' }, title: { display: true, text: 'Default Rate (%)' } }
+    }
+  });
+}
+
+// ─────────────────────────────────────────────
+// TIME SERIES
+// ─────────────────────────────────────────────
+function initTimeSeries() {
+  const histLabels = ['Jan 22','Mar 22','May 22','Jul 22','Sep 22','Nov 22',
+                       'Jan 23','Mar 23','May 23','Jul 23','Sep 23','Nov 23',
+                       'Jan 24','Mar 24','May 24'];
+  const hist = [18.2,17.8,18.9,20.1,21.3,20.8,19.6,18.4,19.1,20.4,21.8,22.1,20.9,19.6,19.8];
+  const fcLabels = ['Jul 24','Aug 24','Sep 24','Oct 24','Nov 24','Dec 24'];
+  const fc    = [20.3, 20.8, 21.2, 21.0, 20.6, 20.9];
+  const fcHi  = fc.map(v => v + 2.4);
+  const fcLo  = fc.map(v => v - 1.8);
+
+  newChart('chartTS', 'line', {
+    labels: [...histLabels, ...fcLabels],
+    datasets: [
+      {
+        label: 'Historical Default Rate',
+        data: [...hist, ...Array(6).fill(null)],
+        borderColor: ACC, backgroundColor: 'transparent',
+        borderWidth: 2, pointRadius: 3,
+        tension: 0.35,
+      },
+      {
+        label: 'Prophet Forecast',
+        data: [...Array(15).fill(null), ...fc],
+        borderColor: WARNING, backgroundColor: 'transparent',
+        borderWidth: 2, borderDash: [5,4],
+        pointStyle: 'diamond', pointRadius: 5,
+        tension: 0.35,
+      },
+      {
+        label: '95% CI Upper',
+        data: [...Array(15).fill(null), ...fcHi],
+        borderColor: 'transparent', backgroundColor: WARNING + '22',
+        fill: '+1', pointRadius: 0,
+      },
+      {
+        label: '95% CI Lower',
+        data: [...Array(15).fill(null), ...fcLo],
+        borderColor: 'transparent', backgroundColor: WARNING + '22',
+        fill: false, pointRadius: 0,
+      },
+    ]
+  }, {
+    plugins: {
+      legend: { labels: { color: '#E2EDFF', font: { family: 'IBM Plex Sans' },
+        filter: item => !item.text.includes('CI ') } }
+    },
+    scales: {
+      x: { grid: { color: '#1A2D4A' } },
+      y: { grid: { color: '#1A2D4A' },
+           title: { display: true, text: 'Default Rate (%)' },
+           ticks: { callback: v => v + '%' } }
+    }
+  });
+}
+
+// ─────────────────────────────────────────────
+// MODEL PERFORMANCE
+// ─────────────────────────────────────────────
+function initModels() {
+  const mLabels = ['XGBoost','Stacking Ensemble','LSTM + Attention','Random Forest','NLP Classifier'];
+  const auc = [0.913, 0.928, 0.891, 0.874, 0.831];
+  const f1  = [0.862, 0.881, 0.843, 0.829, 0.788];
+  const prec= [0.884, 0.901, 0.865, 0.851, 0.802];
+  const rec = [0.841, 0.862, 0.822, 0.808, 0.774];
+
+  newChart('chartModels', 'bar', {
+    labels: ['ROC-AUC','F1-Score','Precision','Recall'],
+    datasets: mLabels.map((m,i) => ({
+      label: m,
+      data: [auc[i], f1[i], prec[i], rec[i]],
+      backgroundColor: MODEL_COLORS[i],
+      borderRadius: 3,
+    }))
+  }, {
+    plugins: {
+      legend: { labels: { color: '#E2EDFF', font: { family: 'IBM Plex Sans', size: 11 } } }
+    },
+    scales: {
+      x: { grid: { display: false } },
+      y: { min: 0.75, max: 0.95, grid: { color: '#1A2D4A' } }
+    }
+  });
+}
+
+function buildAUCBars() {
+  const models = [
+    { name: 'Stacking Ensemble', auc: 0.928, color: SUCCESS },
+    { name: 'XGBoost',           auc: 0.913, color: ACC },
+    { name: 'LSTM + Attention',  auc: 0.891, color: WARNING },
+    { name: 'Random Forest',     auc: 0.874, color: CYAN },
+    { name: 'NLP Classifier',    auc: 0.831, color: PURPLE },
+  ];
+  const container = document.getElementById('auc-bars');
+  container.innerHTML = models.map(m => `
+    <div class="pbar-row">
+      <div class="pbar-label">${m.name}</div>
+      <div class="pbar-track">
+        <div class="pbar-fill" style="width:${((m.auc-0.7)/0.3*100).toFixed(1)}%;background:${m.color};"></div>
+      </div>
+      <div class="pbar-val">${m.auc}</div>
+    </div>
+  `).join('');
+}
+
+// ─────────────────────────────────────────────
+// PREDICTOR LOGIC
+// ─────────────────────────────────────────────
+function computeRisk(inputs) {
+  let prob = 0.12;
+  const cs = inputs.credit_score;
+  const dti = inputs.dti_ratio;
+  const inc = inputs.annual_income;
+  const def = inputs.previous_defaults;
+  const empY = inputs.employment_years;
+  const miss = inputs.missed_payments;
+
+  if (cs < 580)      prob += 0.35;
+  else if (cs < 670) prob += 0.18;
+  else if (cs < 740) prob += 0.06;
+  else               prob -= 0.06;
+
+  if (dti > 0.5)       prob += 0.25;
+  else if (dti > 0.35) prob += 0.12;
+  else if (dti < 0.2)  prob -= 0.08;
+
+  if (inc < 200000)      prob += 0.15;
+  else if (inc > 800000) prob -= 0.10;
+
+  prob += def * 0.18;
+  prob += miss * 0.06;
+
+  if (empY > 5)      prob -= 0.08;
+  else if (empY < 1) prob += 0.12;
+
+  prob = Math.max(0.02, Math.min(0.97, prob));
+
+  let grade = 'CCC';
+  if      (prob < 0.08) grade = 'AAA';
+  else if (prob < 0.15) grade = 'AA';
+  else if (prob < 0.25) grade = 'A';
+  else if (prob < 0.38) grade = 'BBB';
+  else if (prob < 0.52) grade = 'BB';
+  else if (prob < 0.68) grade = 'B';
+
+  const riskLevel = prob > 0.5 ? 'HIGH' : prob > 0.25 ? 'MEDIUM' : 'LOW';
+  const approved  = prob < 0.40;
+  const conf      = (Math.abs(0.5 - prob) * 2 * 100).toFixed(1);
+
+  return { prob, grade, riskLevel, approved, conf };
+}
+
+function runPredictor() {
+  const inputs = {
+    credit_score:      +document.getElementById('p-cs').value,
+    dti_ratio:         +document.getElementById('p-dti').value,
+    annual_income:     +document.getElementById('p-income').value,
+    previous_defaults: +document.getElementById('p-prev').value,
+    employment_years:  +document.getElementById('p-empyrs').value,
+    missed_payments:   +document.getElementById('p-missed').value,
+  };
+  const r = computeRisk(inputs);
+
+  document.getElementById('pred-results').style.display = 'block';
+
+  // Gauge
+  drawGauge(r.prob);
+  document.getElementById('gauge-val').textContent = (r.prob*100).toFixed(1) + '%';
+
+  // Result box
+  const gradeColors = {AAA:'#22C55E',AA:'#4ADE80',A:'#38BDF8',BBB:'#FCD34D',BB:'#FBBF24',B:'#F97316',CCC:'#EF4444'};
+  const gc = gradeColors[r.grade];
+  const statusColor = r.approved ? SUCCESS : DANGER;
+  document.getElementById('pred-status').innerHTML =
+    `<span style="color:${statusColor}">${r.approved ? 'APPROVED' : 'REJECTED'}</span>`;
+  document.getElementById('pred-grade').innerHTML =
+    `<span style="color:${gc}">${r.grade}</span>`;
+  document.getElementById('pred-badge').innerHTML =
+    `<span class="risk-badge rb-${r.riskLevel}">${r.riskLevel} RISK</span>`;
+  document.getElementById('pred-prob').textContent =
+    `Default Probability: ${(r.prob*100).toFixed(1)}%`;
+  document.getElementById('pred-conf').textContent =
+    `Model Confidence: ${r.conf}%`;
+
+  // Factor chart
+  const cs = inputs.credit_score;
+  const factors = {
+    'Credit Score':     Math.max(0,(700-cs)/400),
+    'DTI Ratio':        inputs.dti_ratio * 0.6,
+    'Past Defaults':    inputs.previous_defaults * 0.25,
+    'Income Level':     Math.max(0,(500000-inputs.annual_income)/2000000),
+    'Missed Payments':  inputs.missed_payments * 0.12,
+  };
+  if (charts['chartFactors']) charts['chartFactors'].destroy();
+  charts['chartFactors'] = newChart('chartFactors', 'bar', {
+    labels: Object.keys(factors),
+    datasets: [{
+      label: 'Risk Contribution',
+      data: Object.values(factors),
+      backgroundColor: Object.values(factors).map(v =>
+        v > 0.2 ? DANGER + 'DD' : v > 0.1 ? WARNING + 'DD' : SUCCESS + 'DD'),
+      borderRadius: 3,
+    }]
+  }, {
+    indexAxis: 'y',
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: '#1A2D4A' }, min: 0 },
+      y: { grid: { display: false } }
+    }
+  });
+
+  // NLP quick analysis
+  const txt = document.getElementById('p-text').value;
+  const nlp = analyzeText(txt);
+  document.getElementById('nlp-pol').textContent  = nlp.polarity.toFixed(2);
+  document.getElementById('nlp-subj').textContent = nlp.subjectivity.toFixed(2);
+  document.getElementById('nlp-neg').textContent  = nlp.negWords.length;
+  document.getElementById('nlp-sig').textContent  = nlp.negWords.length > 2 ? 'HIGH' : nlp.negWords.length > 0 ? 'MEDIUM' : 'LOW';
+}
+
+// ─────────────────────────────────────────────
+// GAUGE DRAWING
+// ─────────────────────────────────────────────
+function drawGauge(prob) {
+  const canvas = document.getElementById('gaugeCanvas');
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width, h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  const cx = w/2, cy = h - 18;
+  const r = Math.min(cx, cy) - 10;
+  const startA = Math.PI, endA = 0;
+  const valA = Math.PI + prob * Math.PI;
+
+  // Background arc
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, startA, endA);
+  ctx.strokeStyle = '#1A2D4A';
+  ctx.lineWidth = 18;
+  ctx.stroke();
+
+  // Zone arcs
+  const zones = [
+    { from: 0,    to: 0.25, color: SUCCESS + '88' },
+    { from: 0.25, to: 0.5,  color: WARNING + '88' },
+    { from: 0.5,  to: 1.0,  color: DANGER  + '88' },
+  ];
+  zones.forEach(z => {
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, Math.PI + z.from*Math.PI, Math.PI + z.to*Math.PI);
+    ctx.strokeStyle = z.color;
+    ctx.lineWidth = 18;
+    ctx.stroke();
+  });
+
+  // Value arc
+  const gaugeColor = prob > 0.5 ? DANGER : prob > 0.25 ? WARNING : SUCCESS;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, startA, valA);
+  ctx.strokeStyle = gaugeColor;
+  ctx.lineWidth = 18;
+  ctx.lineCap = 'round';
+  ctx.stroke();
+
+  // Needle
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(Math.PI + prob * Math.PI);
+  ctx.beginPath();
+  ctx.moveTo(0, 8);
+  ctx.lineTo(r - 22, 0);
+  ctx.strokeStyle = '#E2EDFF';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.restore();
+
+  // Center dot
+  ctx.beginPath();
+  ctx.arc(cx, cy, 6, 0, Math.PI*2);
+  ctx.fillStyle = '#E2EDFF';
+  ctx.fill();
+
+  // Labels
+  ctx.fillStyle = '#6E95C0';
+  ctx.font = '10px IBM Plex Mono';
+  ctx.textAlign = 'left';
+  ctx.fillText('0%', cx - r - 4, cy + 14);
+  ctx.textAlign = 'right';
+  ctx.fillText('100%', cx + r + 4, cy + 14);
+  ctx.textAlign = 'center';
+  ctx.fillText('50%', cx, cy - r - 8);
+}
+
+// ─────────────────────────────────────────────
+// NLP ANALYSIS
+// ─────────────────────────────────────────────
+const POS_WORDS = ['excellent','stable','confident','disciplined','reliable','timely',
+                   'consistent','strong','committed','regular','good','positive','proud'];
+const NEG_WORDS = ['urgent','struggle','difficulty','problem','issue','missed','desperate',
+                   'past','behind','defaulted','bad','trouble','crisis','failed','debt'];
+
+function analyzeText(text) {
+  const lower = text.toLowerCase();
+  const words = lower.split(/\s+/);
+  const posFound = POS_WORDS.filter(w => lower.includes(w));
+  const negFound = NEG_WORDS.filter(w => lower.includes(w));
+
+  let polarity = 0;
+  words.forEach(w => {
+    if (POS_WORDS.includes(w)) polarity += 0.2;
+    if (NEG_WORDS.includes(w)) polarity -= 0.2;
+  });
+  polarity = Math.max(-1, Math.min(1, polarity));
+
+  const subjectivity = Math.min(1, (posFound.length + negFound.length) * 0.12 + 0.3);
+
+  return { polarity, subjectivity, posWords: posFound, negWords: negFound };
+}
+
+function runNLP() {
+  const text = document.getElementById('nlp-input').value;
+  const r = analyzeText(text);
+
+  document.getElementById('nlp-results').style.display = 'block';
+
+  document.getElementById('n-pol').textContent  = r.polarity.toFixed(3);
+  document.getElementById('n-subj').textContent = r.subjectivity.toFixed(3);
+  document.getElementById('n-pos').textContent  = r.posWords.length;
+  document.getElementById('n-neg').textContent  = r.negWords.length;
+
+  const riskScore = r.negWords.length * 0.15 + (1 - Math.max(-1, r.polarity)) * 0.1;
+  const riskLevel = riskScore > 0.4 ? 'HIGH' : riskScore > 0.2 ? 'MEDIUM' : 'LOW';
+  const riskColor = { HIGH: DANGER, MEDIUM: WARNING, LOW: SUCCESS }[riskLevel];
+
+  document.getElementById('n-risk-lbl').innerHTML =
+    `<span style="color:${riskColor}">${riskLevel} RISK</span>`;
+
+  document.getElementById('n-neg-kw').innerHTML =
+    r.negWords.length > 0
+      ? r.negWords.map(w => `<span class="kw-tag kw-neg">${w}</span>`).join('')
+      : '<span style="color:var(--text-3)">None detected</span>';
+
+  document.getElementById('n-pos-kw').innerHTML =
+    r.posWords.length > 0
+      ? r.posWords.map(w => `<span class="kw-tag kw-pos">${w}</span>`).join('')
+      : '<span style="color:var(--text-3)">None detected</span>';
+
+  document.getElementById('n-neg-list').innerHTML =
+    r.negWords.length > 0
+      ? r.negWords.map(w => `<div class="kw-tag kw-neg" style="display:block;margin:4px 0;">${w}</div>`).join('')
+      : '<span style="font-size:0.8rem;color:var(--text-3)">No negative keywords found</span>';
+
+  document.getElementById('n-pos-list').innerHTML =
+    r.posWords.length > 0
+      ? r.posWords.map(w => `<div class="kw-tag kw-pos" style="display:block;margin:4px 0;">${w}</div>`).join('')
+      : '<span style="font-size:0.8rem;color:var(--text-3)">No positive keywords found</span>';
+}
+
+// ─────────────────────────────────────────────
+// CHART FACTORY
+// ─────────────────────────────────────────────
+function newChart(id, type, data, opts = {}) {
+  if (charts[id]) charts[id].destroy();
+  const ctx = document.getElementById(id);
+  if (!ctx) return null;
+  charts[id] = new Chart(ctx, {
+    type,
+    data,
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        tooltip: { backgroundColor: '#0D1626', borderColor: '#1A2D4A', borderWidth: 1, titleColor: '#E2EDFF', bodyColor: '#6E95C0' },
+        ...opts.plugins
+      },
+      scales: opts.scales,
+      indexAxis: opts.indexAxis,
+    }
+  });
+  return charts[id];
+}
+</script>
+</body>
+</html>
